@@ -12,3 +12,5 @@ create_BMS.m
 create_SOC_subsytem.m 
 Li_ion_18650_params.mat
 SOC_Kalman_Filter.m
+
+frontend/node_modules

@@ -80,3 +80,45 @@ xlabel('Sample'); ylabel('SOC (%)');
 save('SOC_NeuralNet_Model.mat', 'net');
 
 fprintf("✔ Model saved: SOC_NeuralNet_Model.mat\n");
+
+
+%% -------------------------
+% 7) !!!PR!!! - Export Model for Python (JSON format)
+% -------------------------
+% MATLAB creates a "process" struct that scales inputs to [-1, 1].
+% We must export these min/max values to replicate the logic in Python.
+
+% Get Input Scaling (mapminmax)
+x_process = net.inputs{1}.processSettings{1};
+x_min = x_process.xmin;
+x_max = x_process.xmax;
+
+% Get Output Scaling (mapminmax)
+y_process = net.outputs{2}.processSettings{1};
+y_min = y_process.ymin;
+y_max = y_process.ymax;
+
+% Get Weights and Biases
+IW = net.IW{1}; % Input Weights
+LW = net.LW{2,1}; % Layer Weights
+b1 = net.b{1}; % Bias 1
+b2 = net.b{2}; % Bias 2
+
+% Create a struct to save
+jsonStruct = struct();
+jsonStruct.x_min = x_min;
+jsonStruct.x_max = x_max;
+jsonStruct.y_min = y_min;
+jsonStruct.y_max = y_max;
+jsonStruct.IW = IW;
+jsonStruct.LW = LW;
+jsonStruct.b1 = b1;
+jsonStruct.b2 = b2;
+
+% Write to JSON file
+fid = fopen('model_params.json', 'w');
+encodedJSON = jsonencode(jsonStruct);
+fprintf(fid, '%s', encodedJSON);
+fclose(fid);
+
+fprintf("✔ Weights exported to: model_params.json\n");
